@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'egxsmit/healthcare-app'
+        DOCKER_IMAGE = 'smitpatil27/healthcare-app'
     }
 
     stages {
@@ -29,23 +29,6 @@ pipeline {
             post {
                 always {
                     junit 'reports/test-results.xml'
-                }
-            }
-        }
-
-        stage('OWASP Dependency Check') {
-            steps {
-                bat 'if not exist reports mkdir reports'
-                bat 'C:\\dependency-check\\bin\\dependency-check.bat --scan . --format HTML --out reports\\ --disableAssembly'
-            }
-            post {
-                always {
-                    publishHTML(target: [
-                        allowMissing: true,
-                        reportDir: 'reports',
-                        reportFiles: 'dependency-check-report.html',
-                        reportName: 'OWASP Dependency Check'
-                    ])
                 }
             }
         }
