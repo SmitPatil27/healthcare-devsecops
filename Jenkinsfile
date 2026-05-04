@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'smitpatil27/healthcare-app'
+        DOCKER_IMAGE = 'egxsmit/healthcare-app'
     }
 
     stages {
