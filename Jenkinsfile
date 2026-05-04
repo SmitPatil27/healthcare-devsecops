@@ -69,13 +69,11 @@ pipeline {
     }
 
     post {
-        success { echo 'Pipeline completed successfully!' }
-        failure  { echo 'Pipeline failed. Check stage logs.' }
-    }
-}
-
-    post {
-        success { echo 'Pipeline completed successfully!' }
-        failure  { echo 'Pipeline failed. Check stage logs.' }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check stage logs.'
+        }
     }
 }
