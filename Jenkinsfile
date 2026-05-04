@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'github-token',
+                    credentialsId: 'github-creds',
                     url: 'https://github.com/SmitPatil27/healthcare-devsecops.git'
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 bat 'if not exist reports mkdir reports'
-                bat 'pytest tests/ --junitxml=reports/test-results.xml --cov=app --cov-report=xml:reports/coverage.xml'
+                bat 'set PYTHONPATH=%CD% && pytest tests/ --junitxml=reports/test-results.xml --cov=app --cov-report=xml:reports/coverage.xml'
             }
             post {
                 always {
@@ -67,6 +67,12 @@ pipeline {
         }
 
     }
+
+    post {
+        success { echo 'Pipeline completed successfully!' }
+        failure  { echo 'Pipeline failed. Check stage logs.' }
+    }
+}
 
     post {
         success { echo 'Pipeline completed successfully!' }
