@@ -35,7 +35,8 @@ pipeline {
 
         stage('OWASP Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '--scan . --format HTML --out reports/', odcInstallation: 'OWASP-DC'
+                bat 'if not exist reports mkdir reports'
+                bat 'C:\\dependency-check\\bin\\dependency-check.bat --scan . --format HTML --out reports\\ --disableAssembly'
             }
             post {
                 always {
