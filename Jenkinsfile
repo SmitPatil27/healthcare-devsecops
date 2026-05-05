@@ -48,26 +48,24 @@ pipeline {
             }
         }
 
-        // ✅ FIXED (faster dependency scan)
-        stage('Dependency Security Check') {
-            steps {
-                script {
-                    echo 'Checking for vulnerable dependencies...'
-                    bat '''
-                        if not exist reports mkdir reports
-                        docker run --rm ^
-                        -v %CD%:/src ^
-                        owasp/dependency-check:latest ^
-                        --scan /src ^
-                        --format HTML ^
-                        --out /src/reports ^
-                        --noupdate ^
-                        --project "Healthcare App" || echo Dependency check completed
-                    '''
-                }
-            }
+       stage('Dependency Security Check') {
+    steps {
+        script {
+            echo 'Checking for vulnerable dependencies...'
+            bat '''
+                if not exist reports mkdir reports
+                docker run --rm ^
+                -v %CD%:/src ^
+                -v dependency-data:/usr/share/dependency-check/data ^
+                owasp/dependency-check:latest ^
+                --scan /src ^
+                --format HTML ^
+                --out /src/reports ^
+                --project "Healthcare App"
+            '''
         }
-
+    }
+}
         stage('Build Docker Image') {
             steps {
                 bat "docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ."
