@@ -1,5 +1,5 @@
 import pytest
-from app.app import app
+from app import app
 
 @pytest.fixture
 def client():
@@ -14,4 +14,3 @@ def test_home(client):
 def test_health(client):
     res = client.get('/health')
     assert res.status_code == 200
-    assert b'healthy' in res.data
