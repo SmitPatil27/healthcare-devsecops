@@ -32,51 +32,37 @@ pipeline {
             }
         }
 
-        // ✅ FIXED SAST (non-blocking, no --error)
+        // ✅ SAST (non-blocking)
         stage('SAST - Static Code Analysis') {
             steps {
                 script {
-                    echo 'Running static code analysis with Semgrep...'
+                    echo 'Running Semgrep...'
                     bat '''
                         docker run --rm ^
                         -v %CD%:/src ^
                         returntocorp/semgrep semgrep ^
                         --config=p/python ^
-                        /src || echo SAST scan completed
+                        /src || echo SAST completed
                     '''
                 }
             }
         }
 
-      stage('Dependency & Container Scan - Trivy') {
-    steps {
-        script {
-            echo 'Scanning with Trivy...'
-            bat '''
-                docker run --rm ^
-                -v //./pipe/docker_engine://./pipe/docker_engine ^
-                aquasec/trivy:latest image ^
-                --exit-code 0 ^
-                --severity HIGH,CRITICAL ^
-                --format table ^
-                egxsmit/healthcare-app:latest
-            '''
-        }
-    }
-}
+        // ✅ BUILD FIRST (IMPORTANT FIX)
         stage('Build Docker Image') {
             steps {
                 bat "docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ."
             }
         }
 
+        // ✅ TRIVY AFTER BUILD (FIXED)
         stage('Container Security Scan - Trivy') {
             steps {
                 script {
-                    echo 'Scanning Docker image for vulnerabilities with Trivy...'
+                    echo 'Scanning Docker image with Trivy...'
                     bat '''
                         docker run --rm ^
-                        -v //./pipe/docker_engine://./pipe/docker_engine ^
+                        -v //var/run/docker.sock:/var/run/docker.sock ^
                         aquasec/trivy:latest image ^
                         --exit-code 0 ^
                         --severity HIGH,CRITICAL ^
@@ -108,21 +94,20 @@ pipeline {
             }
         }
 
-        stage('Security Verification') {
+        stage('Verification') {
             steps {
                 script {
                     echo 'Verifying deployment...'
-                    bat 'kubectl get pods -o wide'
+                    bat 'kubectl get pods'
                     bat 'kubectl get svc healthcare-service'
-                    echo 'Deployment successful and secure!'
                 }
             }
         }
     }
 
     post {
-        always  { echo 'Security scan reports available in workspace' }
-        success { echo 'DevSecOps pipeline passed successfully!' }
-        failure { echo 'Pipeline failed. Check logs.' }
+        always  { echo 'Pipeline completed. Reports available.' }
+        success { echo 'DevSecOps pipeline SUCCESS ✅' }
+        failure { echo 'Pipeline FAILED ❌' }
     }
 }
