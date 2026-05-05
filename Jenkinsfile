@@ -48,21 +48,19 @@ pipeline {
             }
         }
 
-      stage('Dependency Security Check') {
+      stage('Dependency & Container Scan - Trivy') {
     steps {
         script {
-            echo 'Checking for vulnerable dependencies...'
-            bat(returnStatus: true, script: '''
-                if not exist reports mkdir reports
+            echo 'Scanning with Trivy...'
+            bat '''
                 docker run --rm ^
-                -v %CD%:/src ^
-                -v dependency-data:/usr/share/dependency-check/data ^
-                owasp/dependency-check:latest ^
-                --scan /src ^
-                --format HTML ^
-                --out /src/reports ^
-                --project "Healthcare App"
-            ''')
+                -v //./pipe/docker_engine://./pipe/docker_engine ^
+                aquasec/trivy:latest image ^
+                --exit-code 0 ^
+                --severity HIGH,CRITICAL ^
+                --format table ^
+                egxsmit/healthcare-app:latest
+            '''
         }
     }
 }
