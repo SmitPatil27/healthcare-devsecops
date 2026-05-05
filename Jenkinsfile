@@ -48,11 +48,11 @@ pipeline {
             }
         }
 
-       stage('Dependency Security Check') {
+      stage('Dependency Security Check') {
     steps {
         script {
             echo 'Checking for vulnerable dependencies...'
-            bat '''
+            bat(returnStatus: true, script: '''
                 if not exist reports mkdir reports
                 docker run --rm ^
                 -v %CD%:/src ^
@@ -62,7 +62,7 @@ pipeline {
                 --format HTML ^
                 --out /src/reports ^
                 --project "Healthcare App"
-            '''
+            ''')
         }
     }
 }
